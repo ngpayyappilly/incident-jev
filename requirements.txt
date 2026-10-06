@@ -1,0 +1,4 @@
+typesafe-sdk>=0.1   # check the changelog and pin an exact version
+fastapi>=0.115
+uvicorn[standard]>=0.30
+prometheus-client>=0.20
