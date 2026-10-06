@@ -5,6 +5,7 @@
 - Read [README.md](README.md) first for setup, the evaluation flow, and production adaptation points.
 - Keep the pipeline boundary intact: `facts.py` extracts deterministic facts, `probes.py` builds typed questions, `judge.py` orchestrates Jev calls, and `decide.py` composes the deterministic verdict.
 - Treat `app/facts.py`, `app/probes.py`, and `app/decide.py` as pure, SDK-independent logic. Keep network calls, retries, concurrency, circuit breaking, and SDK exception handling in `app/jev_gateway.py`, `app/judge.py`, and `app/resilience.py`.
+- If a requested change appears to require network/SDK logic inside a pure module, do not add it there; instead route the dependency through `app/jev_gateway.py`, `app/judge.py`, or `app/resilience.py` and pass results into the pure module, or flag the conflict before proceeding.
 - `app/service.py` owns the top-level evaluation flow, caching, and metrics; `app/main.py` owns the FastAPI lifecycle and HTTP endpoints.
 
 ## Development workflow
@@ -26,7 +27,7 @@
 
 ## Change discipline
 
-- Prefer the smallest change at the owning module and avoid unrelated refactors.
+- Make the change in the module designated as owner in the "Project shape" section (for example, pure logic in `app/facts.py`, `app/probes.py`, or `app/decide.py`, and network concerns in `app/jev_gateway.py`, `app/judge.py`, or `app/resilience.py`). Do not modify other modules unless the change requires it.
 - Keep pure logic free of side effects and external SDK imports.
 - Extend the fake Jev and focused tests when adding or changing question types, signals, failure modes, or endpoint behavior.
 - Validate behavior with the narrowest relevant unittest first, then run the full discovery command.
